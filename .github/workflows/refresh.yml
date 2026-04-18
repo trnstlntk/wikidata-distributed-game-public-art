@@ -5,6 +5,11 @@ on:
     - cron: '0 3 * * 1'
   workflow_dispatch:
 
+# Prevent two refresh runs from happening at the same time.
+concurrency:
+  group: refresh-tiles
+  cancel-in-progress: false
+
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -22,18 +27,25 @@ jobs:
       - name: Fetch latest candidate artworks
         run: node scripts/refresh-tiles.mjs
 
-      - name: Commit updated tiles
+      - name: Commit and push updated tiles
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/tiles.json
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "Refresh tiles $(date -u +%Y-%m-%d)"
-            for attempt in 1 2 3; do
-              git pull --rebase origin main && git push && break
-              echo "Push attempt $attempt failed, retrying…"
-              sleep 3
-            done
+            exit 0
           fi
+          git commit -m "Refresh tiles $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push attempt $attempt rejected. Fetching latest main and rebasing…"
+            git fetch origin main
+            git rebase origin/main
+            sleep 2
+          done
+          echo "All 5 push attempts failed."
+          exit 1
