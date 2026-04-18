@@ -1,0 +1,12 @@
+{
+  "name": "wikidata-public-art-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Wikidata Distributed Game: is this artwork public art?",
+  "scripts": {
+    "refresh": "node scripts/refresh-tiles.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
