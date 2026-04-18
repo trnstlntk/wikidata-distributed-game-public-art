@@ -15,7 +15,7 @@ const outputPath = join(__dirname, '..', 'data', 'tiles.json');
 const QLEVER_ENDPOINT = 'https://qlever.cs.uni-freiburg.de/api/wikidata';
 
 // Artworks that:
-//   - are a work of art (Q838948) or any subclass thereof,
+//   - are a certain type (P31) of work, such as sculpture, or statue,
 //   - have an image (P18),
 //   - are located in an administrative territorial entity (P131),
 //   - have coordinates (P625),
@@ -31,21 +31,11 @@ SELECT DISTINCT ?item WHERE {
   VALUES ?type {
     wd:Q860861    # sculpture
     wd:Q179700    # statue
-    wd:Q575759    # war memorial
-    wd:Q4989906   # monument
-    wd:Q483453    # fountain
-    wd:Q5003624   # memorial
-    wd:Q219423    # mural
     wd:Q245117    # relief sculpture
     wd:Q2293362   # group of sculptures
-    wd:Q721747    # commemorative plaque
-    wd:Q11734477  # memorial stone
     wd:Q20437094  # installation artwork
-    wd:Q43483     # water well
     wd:Q241045    # bust
     wd:Q3476515   # architectural sculpture
-    wd:Q51845395  # memorial column
-    wd:Q1630622   # drinking fountain
     wd:Q928357    # bronze sculpture
   }
   ?item wdt:P31   ?type ;
