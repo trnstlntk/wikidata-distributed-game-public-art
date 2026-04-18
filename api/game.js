@@ -17,7 +17,7 @@ const DESCRIPTION = {
     en: 'Is this public art?'
   },
   description: {
-    en: "Look at an artwork's image and location, then decide whether it is public art. Public art means: permanently placed in a publicly accessible location. Note that memorials in cemeteries are often not permanently publicly accessible!"
+    en: "Look at an artwork's image and location, then decide whether it is public art — permanently placed in a publicly accessible location."
   }
   // You can add an "icon" field here later, pointing at a 120px PNG/JPG URL.
   // e.g.  icon: 'https://<your-project>.vercel.app/icon.png'
@@ -44,13 +44,9 @@ module.exports = function handler(req, res) {
   } else if (action === 'tiles') {
     const n = Math.max(1, Math.min(10, parseInt(q.num, 10) || 1));
     payload = { tiles: pickTiles(n) };
-    // Warn the platform if the pool is getting low
     if (tiles.items && tiles.items.length < 100) payload.low = 1;
 
   } else if (action === 'log_action') {
-    // Fire-and-forget: we don't keep server-side state.
-    // Once the Wikidata edit is made, the item drops out of the next SPARQL
-    // refresh, so it won't come back as a future tile.
     console.log(`user=${q.user} tile=${q.tile} decision=${q.decision}`);
     payload = { status: 'ok' };
 
@@ -80,12 +76,41 @@ function pickTiles(n) {
   return chosen;
 }
 
-function makeTile(qid) {
-  const numericId = parseInt(qid.substring(1), 10); // strip the leading 'Q'
+// Backwards-compatible: if `record` is a bare QID string (from the old
+// tiles.json format), treat it as { qid: record }. Otherwise it's an object
+// with qid plus optional enrichment fields.
+function makeTile(record) {
+  const entry = typeof record === 'string' ? { qid: record } : record;
+  const qid = entry.qid;
+  const numericId = parseInt(qid.substring(1), 10);
+
+  const sections = [
+    { type: 'item', q: qid }
+  ];
+
+  // Build an "Additional info" text section from any enrichment fields present.
+  const lines = [];
+  if (entry.collection) lines.push(`Collection: ${entry.collection}`);
+  if (entry.location)   lines.push(`Location: ${entry.location}`);
+  if (entry.partOf)     lines.push(`Part of: ${entry.partOf}`);
+  if (entry.creator)    lines.push(`Creator: ${entry.creator}`);
+  if (entry.inception !== undefined && entry.inception !== null) {
+    // Inception is stored as a signed integer year; negative = BCE.
+    lines.push(
+      entry.inception < 0
+        ? `Inception: ${-entry.inception} BCE`
+        : `Inception: ${entry.inception}`
+    );
+  }
+  if (lines.length > 0) {
+    sections.push({
+      type:  'text',
+      title: 'Additional info',
+      text:  lines.join('\n')
+    });
+  }
 
   // The JSON payload for wbeditentity: two claims added in one atomic edit.
-  // The Distributed Game requires every api_action value to be a string,
-  // so we stringify this before putting it in the action object.
   const editData = {
     claims: [
       {
@@ -117,9 +142,7 @@ function makeTile(qid) {
 
   return {
     id: numericId,
-    sections: [
-      { type: 'item', q: qid }
-    ],
+    sections: sections,
     controls: [
       {
         type: 'buttons',
