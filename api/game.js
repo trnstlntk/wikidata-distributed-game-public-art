@@ -17,7 +17,7 @@ const DESCRIPTION = {
     en: 'Is this public art?'
   },
   description: {
-    en: "Look at an artwork's image and location, then decide whether it is public art — permanently placed in a publicly accessible location."
+    en: "Look at an artwork's image and location, then decide whether it is public art. Public art means: permanently placed in a publicly accessible location. Note that memorials in cemeteries are often not permanently publicly accessible!"
   }
   // You can add an "icon" field here later, pointing at a 120px PNG/JPG URL.
   // e.g.  icon: 'https://<your-project>.vercel.app/icon.png'
