@@ -28,10 +28,30 @@ PREFIX wd:  <http://www.wikidata.org/entity/>
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 
 SELECT DISTINCT ?item WHERE {
-  ?item wdt:P31/wdt:P279* wd:Q838948 ;
-        wdt:P18    ?image ;
-        wdt:P131   ?admin ;
-        wdt:P625   ?coord .
+  VALUES ?type {
+    wd:Q860861    # sculpture
+    wd:Q179700    # statue
+    wd:Q575759    # war memorial
+    wd:Q4989906   # monument
+    wd:Q483453    # fountain
+    wd:Q5003624   # memorial
+    wd:Q219423    # mural
+    wd:Q245117    # relief sculpture
+    wd:Q2293362   # group of sculptures
+    wd:Q721747    # commemorative plaque
+    wd:Q11734477  # memorial stone
+    wd:Q20437094  # installation artwork
+    wd:Q43483     # water well
+    wd:Q241045    # bust
+    wd:Q3476515   # architectural sculpture
+    wd:Q51845395  # memorial column
+    wd:Q1630622   # drinking fountain
+    wd:Q928357    # bronze sculpture
+  }
+  ?item wdt:P31   ?type ;
+        wdt:P18   ?image ;
+        wdt:P131  ?admin ;
+        wdt:P625  ?coord .
   MINUS { ?item wdt:P136 ?genre }
 }
 LIMIT 20000
