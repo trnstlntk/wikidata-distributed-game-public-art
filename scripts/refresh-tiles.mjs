@@ -104,7 +104,7 @@ async function main() {
     headers: {
       'Content-Type': 'application/sparql-query',
       'Accept':       'application/sparql-results+json',
-      'User-Agent':   'wikidata-public-art-game (refresh script)'
+      'User-Agent':   'wikidata-public-art-game/1.0 (https://github.com/trnstlntk/wikidata-distributed-game-public-art; refresh script)'
     },
     body: QUERY
   });
