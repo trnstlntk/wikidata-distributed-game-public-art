@@ -14,7 +14,7 @@ import { dirname, join } from 'node:path';
 const __dirname  = dirname(fileURLToPath(import.meta.url));
 const outputPath = join(__dirname, '..', 'data', 'tiles.json');
 
-const QLEVER_ENDPOINT = 'https://qlever.cs.uni-freiburg.de/api/wikidata';
+const QLEVER_ENDPOINT = 'https://query.wikidata.org/sparql';
 
 // Artworks that:
 //   - are a certain type (P31) of work (allowlist below),
@@ -61,6 +61,7 @@ WHERE {
         wdt:P131  ?admin ;
         wdt:P625  ?coord .
   MINUS { ?item wdt:P136 ?genre }
+  MINUS { ?item wdt:P17 wd:Q213. }
 
   OPTIONAL {
     ?item wdt:P195 ?collection_ .
